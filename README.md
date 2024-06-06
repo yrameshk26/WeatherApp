@@ -24,6 +24,16 @@ This is a weather application built with Vue.js and Vite. The app is designed to
 - **@headlessui/vue**: Collection of completely unstyled, fully accessible UI components for Vue.js.
 - **@heroicons/vue**: A set of free MIT-licensed high-quality SVG icons for you to use in your web projects.
 
+## Deployment
+
+### Deployment Process
+
+This application has been deployed on Azure as a web app using GitHub Actions with Continuous Integration/Continuous Deployment (CI/CD). With every push to the GitHub repository, the application is automatically deployed.
+
+### Accessing the Application
+
+You can access the deployed application at [https://intercap.azurewebsites.net](https://intercap.azurewebsites.net).
+
 ## Prerequisites
 
 Make sure you have Node.js and npm installed on your system. You can download them from [Node.js official website](https://nodejs.org/).
