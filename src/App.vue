@@ -45,7 +45,7 @@
       class="w-full py-4 bg-blue-500 text-center rounded-t-lg"
       style="max-width: 1000px; margin: 0 auto"
     >
-      <h3 class="text-xl font-semibold text-white">Weather App</h3>
+      <h3 class="text-xl font-bold text-white">Weather App</h3>
       <p class="text-white">by Ramesh Yoha</p>
     </div>
   </div>

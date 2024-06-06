@@ -16,11 +16,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr
-            v-for="forecast in getListForDate(weatherForecast, selectedDate)"
-            :key="forecast.Date"
-            class="hover:bg-gray-50"
-          >
+          <tr v-for="forecast in filteredForecasts" :key="forecast.Date" class="hover:bg-gray-50">
             <td class="py-2 px-4 text-sm">{{ forecast.Date }}</td>
             <td class="py-2 px-4 text-sm">{{ forecast.Temp }}</td>
             <td class="py-2 px-4 text-sm">{{ forecast.MinTemp }}</td>
@@ -35,7 +31,7 @@
       <button
         v-for="dayForecast in weatherForecast"
         :key="dayForecast.date"
-        @click="selectDate(dayForecast.date)"
+        @click="selectedDate = dayForecast.date"
         :disabled="selectedDate === dayForecast.date"
         class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
       >
@@ -47,26 +43,21 @@
 
 <script>
 export default {
-  name: 'TableComponent',
+  name: 'WeatherTable',
 
   props: ['weatherForecast'],
 
   data() {
     return {
-      selectedDate:
-        this.weatherForecast && this.weatherForecast.length > 0
-          ? this.weatherForecast[0].date
-          : null
+      selectedDate: this.weatherForecast.length > 0 ? this.weatherForecast[0].date : null
     }
   },
 
-  methods: {
-    selectDate(date) {
-      this.selectedDate = date
-    },
-
-    getListForDate(groupedForecast, targetDate) {
-      const targetForecast = groupedForecast.find((item) => item.date === targetDate)
+  computed: {
+    filteredForecasts() {
+      const targetForecast = this.weatherForecast.find(
+        (forecast) => forecast.date === this.selectedDate
+      )
       return targetForecast ? targetForecast.list : []
     }
   }

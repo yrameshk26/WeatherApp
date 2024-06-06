@@ -1,27 +1,36 @@
 <template>
-  <div
-    v-if="currentWeather"
-    class="p-4 bg-white border border-blue-200 rounded-lg shadow-lg"
-    style="max-width: 1000px; margin: 0 auto"
-  >
-    <div class="text-2xl font-semibold text-blue-700">{{ currentWeather.weather[0].main }}</div>
-    <div class="text-blue-600">{{ currentWeather.weather[0].description }}</div>
-    <br />
-    <div class="text-xl font-bold text-blue-700">
-      {{ formatTemperature(currentWeather.main.temp) }}
-    </div>
-    <div class="text-blue-600">Wind {{ currentWeather.wind.speed }} m/sec</div>
-
-    <button
-      @click="getWeatherForecast(cityId)"
-      class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+  <div>
+    <div
+      v-if="errorMessage"
+      class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+      role="alert"
     >
-      {{ buttonName }}
-    </button>
-    <TableComponent
-      v-if="tableOpened && weatherForecast"
-      :weatherForecast="weatherForecast"
-    ></TableComponent>
+      {{ errorMessage }}
+    </div>
+    <div
+      v-if="currentWeather"
+      class="p-4 bg-white border border-blue-200 rounded-lg shadow-lg"
+      style="max-width: 1000px; margin: 0 auto"
+    >
+      <div class="text-2xl font-semibold text-blue-700">{{ currentWeather.weather[0].main }}</div>
+      <div class="text-blue-600">{{ currentWeather.weather[0].description }}</div>
+      <br />
+      <div class="text-xl font-bold text-blue-700">
+        {{ this.formatTemperature(this.currentWeather.main.temp) }}
+      </div>
+      <div class="text-blue-600">Wind {{ currentWeather.wind.speed }} m/sec</div>
+
+      <button
+        @click="toggleForecast"
+        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
+        {{ buttonLabel }}
+      </button>
+      <TableComponent
+        v-if="isForecastVisible && weatherForecast"
+        :weatherForecast="formattedForecast"
+      ></TableComponent>
+    </div>
   </div>
 </template>
 
@@ -46,8 +55,9 @@ export default {
       cityId: null,
       currentWeather: null,
       weatherForecast: null,
-      tableOpened: false,
-      buttonName: 'SEE FORECAST'
+      isForecastVisible: false,
+      buttonLabel: 'SEE FORECAST',
+      errorMessage: ''
     }
   },
 
@@ -55,138 +65,120 @@ export default {
     city: {
       immediate: true,
       handler(newCity) {
-        this.tableOpened = false
-        this.buttonName = 'SEE FORECAST'
+        this.isForecastVisible = false
+        this.buttonLabel = 'SEE FORECAST'
+        this.resetData()
         if (newCity && !newCity.toLowerCase().startsWith('select')) {
           this.fetchCityId(newCity)
-        } else {
-          this.currentWeather = null
-          this.weatherForecast = null
-          this.cityId = null
         }
       }
     }
   },
 
+  computed: {
+    formattedForecast() {
+      if (!this.weatherForecast) return []
+      return this.weatherForecast.map((day) => ({
+        ...day,
+        list: day.list.map((item) => ({
+          Date: this.formatDateTime(item.dt_txt),
+          Temp: this.formatTemperature(item.main.temp),
+          MinTemp: this.formatTemperature(item.main.temp_min),
+          MaxTemp: this.formatTemperature(item.main.temp_max),
+          Wind: `${item.wind.speed} m/sec`,
+          Description: item.weather[0].description
+        }))
+      }))
+    }
+  },
+
   methods: {
-    fetchCityId(cityName) {
+    async fetchCityId(cityName) {
       const cityData = cities.find((city) => city.name.toLowerCase() === cityName.toLowerCase())
       this.cityId = cityData ? cityData.id : null
-      if (this.cityId) {
-        this.getCurrentWeather(this.cityId)
-      } else {
-        this.currentWeather = null
-      }
+      if (this.cityId) await this.getCurrentWeather(this.cityId)
     },
-
-    formatDateTime(dateTime) {
-      return format(new Date(dateTime), 'dd MMM haaa')
-    },
-
-    formatDate(date) {
-      return format(new Date(date), 'dd MMM')
-    },
-
-    formatTemperature(temperature) {
-      return (temperature - 273.15).toFixed(1) + '°C'
-    },
-
-    getCurrentWeather(cityId) {
+    async getCurrentWeather(cityId) {
       const key = `currentWeather-${cityId}`
       const cache = getOrCreateCache(key, {
         max: parseInt(import.meta.env.VITE_MAX_CACHE_ITEMS),
         ttl: parseInt(import.meta.env.VITE_TTL)
-      }) // Create or retrieve cache
+      })
       if (cache.has(key)) {
-        console.log('Got from Cache')
-        // Check if cache has data
-        this.currentWeather = cache.get(key) // Retrieve data from cache
+        this.currentWeather = cache.get(key)
       } else {
-        axios
-          .get(
+        try {
+          const response = await axios.get(
             `${import.meta.env.VITE_WEATHER_MAP_URL}weather?id=${cityId}&appid=${import.meta.env.VITE_WEATHER_MAP_APP_ID}`
           )
-          .then((response) => {
-            console.log('Called from API')
-            this.currentWeather = response.data
-            cache.set(key, response.data) // Store data in cache
-          })
-          .catch((error) => {
-            console.log(error)
-          })
-      }
-    },
-
-    getWeatherForecast(cityId) {
-      if (!this.tableOpened) {
-        const key = `weatherForecast-${cityId}`
-        const cache = getOrCreateCache(key, {
-          max: parseInt(import.meta.env.VITE_MAX_CACHE_ITEMS),
-          ttl: parseInt(import.meta.env.VITE_TTL)
-        }) // Create or retrieve cache
-
-        if (cache.has(key)) {
-          console.log('Got from Cache')
-          // Check if cache has data
-          this.weatherForecast = cache.get(key) // Retrieve data from cache
-        } else {
-          axios
-            .get(
-              `${import.meta.env.VITE_WEATHER_MAP_URL}forecast?id=${cityId}&appid=${import.meta.env.VITE_WEATHER_MAP_APP_ID}`
-            )
-            .then((response) => {
-              console.log('Called from API')
-              this.weatherForecast = this.forecastByDay(response.data)
-              cache.set(key, this.weatherForecast) // Store data in cache
-            })
-            .catch((error) => {
-              console.log(error)
-            })
+          this.currentWeather = response.data
+          cache.set(key, response.data)
+        } catch (error) {
+          this.handleError('Failed to fetch current weather data.')
         }
-
-        this.tableOpened = !this.tableOpened
-        this.buttonName = this.tableOpened ? 'CLOSE' : 'SEE FORECAST'
       }
     },
-
-    forecastByDay(forecast) {
+    async fetchWeatherForecast(cityId) {
+      const key = `weatherForecast-${cityId}`
+      const cache = getOrCreateCache(key, {
+        max: parseInt(import.meta.env.VITE_MAX_CACHE_ITEMS),
+        ttl: parseInt(import.meta.env.VITE_TTL)
+      })
+      if (cache.has(key)) {
+        this.weatherForecast = cache.get(key)
+      } else {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_WEATHER_MAP_URL}forecast?id=${cityId}&appid=${import.meta.env.VITE_WEATHER_MAP_APP_ID}`
+          )
+          this.weatherForecast = this.groupForecastByDay(response.data)
+          cache.set(key, this.weatherForecast)
+        } catch (error) {
+          this.handleError('Failed to fetch weather forecast data.')
+        }
+      }
+    },
+    handleError(message) {
+      this.errorMessage = message
+      setTimeout(() => {
+        this.errorMessage = ''
+      }, 3000)
+    },
+    formatDateTime(dateTime) {
+      return format(new Date(dateTime), 'dd MMM haaa')
+    },
+    formatTemperature(temperature) {
+      return `${(temperature - 273.15).toFixed()}°C`
+    },
+    groupForecastByDay(forecast) {
       if (!forecast) return []
       const groupedForecast = []
       forecast.list.forEach((forecastItem) => {
-        const date = this.formatDate(forecastItem.dt_txt)
-
-        let existingDateIndex = groupedForecast.findIndex((item) => item.date === date)
-
-        if (existingDateIndex === -1) {
-          groupedForecast.push({
-            date,
-            list: [
-              {
-                Date: this.formatDateTime(forecastItem.dt_txt),
-                Temp: this.formatTemperature(forecastItem.main.temp),
-                MinTemp: this.formatTemperature(forecastItem.main.temp_min),
-                MaxTemp: this.formatTemperature(forecastItem.main.temp_max),
-                Wind: forecastItem.wind.speed + ' m/sec',
-                Description: forecastItem.weather[0].description
-              }
-            ]
-          })
+        const date = format(new Date(forecastItem.dt_txt), 'dd MMM')
+        const existingDay = groupedForecast.find((day) => day.date === date)
+        if (existingDay) {
+          existingDay.list.push(forecastItem)
         } else {
-          groupedForecast[existingDateIndex].list.push({
-            Date: this.formatDateTime(forecastItem.dt_txt),
-            Temp: this.formatTemperature(forecastItem.main.temp),
-            MinTemp: this.formatTemperature(forecastItem.main.temp_min),
-            MaxTemp: this.formatTemperature(forecastItem.main.temp_max),
-            Wind: forecastItem.wind.speed + ' m/sec',
-            Description: forecastItem.weather[0].description
-          })
+          groupedForecast.push({ date, list: [forecastItem] })
         }
       })
-
       return groupedForecast
+    },
+    toggleForecast() {
+      this.isForecastVisible = !this.isForecastVisible
+      this.buttonLabel = this.isForecastVisible ? 'CLOSE' : 'SEE FORECAST'
+      if (this.isForecastVisible && this.cityId) {
+        this.fetchWeatherForecast(this.cityId)
+      }
+    },
+    resetData() {
+      this.currentWeather = null
+      this.weatherForecast = null
+      this.isForecastVisible = false
+      this.buttonLabel = 'SEE FORECAST'
+      this.cityId = null
+      this.errorMessage = ''
     }
   }
 }
 </script>
-
-<style scoped></style>

@@ -13,6 +13,17 @@ This is a weather application built with Vue.js and Vite. The app is designed to
 - **Precommit Check**: Enforces linting before committing changes to maintain code quality.
 - **Environment Variables**: Utilizes `.env` files to manage environment variables.
 
+### Technologies Used
+
+- **Vue.js**: JavaScript framework for building user interfaces.
+- **Vite**: Next-generation front-end tooling for Vue.js.
+- **Tailwind CSS**: Utility-first CSS framework for quickly building custom designs.
+- **Axios**: Promise-based HTTP client for making HTTP requests.
+- **Date-fns**: Modern JavaScript date utility library.
+- **Lru-cache**: Least Recently Used (LRU) cache for caching API data.
+- **@headlessui/vue**: Collection of completely unstyled, fully accessible UI components for Vue.js.
+- **@heroicons/vue**: A set of free MIT-licensed high-quality SVG icons for you to use in your web projects.
+
 ## Prerequisites
 
 Make sure you have Node.js and npm installed on your system. You can download them from [Node.js official website](https://nodejs.org/).
