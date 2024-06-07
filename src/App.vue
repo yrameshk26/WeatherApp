@@ -46,7 +46,7 @@
       style="max-width: 1000px; margin: 0 auto"
     >
       <h3 class="text-xl font-bold text-white">Weather App</h3>
-      <p class="text-white">by Ramesh Yoha</p>
+      <p class="text-white">by Ramesh Yoha.</p>
     </div>
   </div>
 </template>
