@@ -99,9 +99,6 @@ export default {
       if (this.cityId) await this.getCurrentWeather(this.cityId)
     },
     async getCurrentWeather(cityId) {
-      console.log('test')
-      console.log(import.meta.env.VITE_MAX_CACHE_ITEMS)
-      console.log(import.meta.env.VITE_TTL)
       const key = `currentWeather-${cityId}`
       const cache = getOrCreateCache(key, {
         max: parseInt(import.meta.env.VITE_MAX_CACHE_ITEMS),
@@ -122,9 +119,6 @@ export default {
       }
     },
     async fetchWeatherForecast(cityId) {
-      console.log('test')
-      console.log(import.meta.env.VITE_MAX_CACHE_ITEMS)
-      console.log(import.meta.env.VITE_TTL)
       const key = `weatherForecast-${cityId}`
       const cache = getOrCreateCache(key, {
         max: parseInt(import.meta.env.VITE_MAX_CACHE_ITEMS),
