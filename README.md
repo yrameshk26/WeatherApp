@@ -32,7 +32,7 @@ This application has been deployed on Azure as a web app using GitHub Actions wi
 
 ### Accessing the Application
 
-You can access the deployed application at [https://victorious-moss-0c9fad50f.5.azurestaticapps.net]([https://intercap.azurewebsites.net](https://victorious-moss-0c9fad50f.5.azurestaticapps.net)).
+You can access the deployed application at [https://victorious-moss-0c9fad50f.5.azurestaticapps.net](https://victorious-moss-0c9fad50f.5.azurestaticapps.net)
 
 ## Prerequisites
 
