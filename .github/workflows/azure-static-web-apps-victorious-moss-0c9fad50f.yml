@@ -15,9 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     env:
-      ENV_VAR_1: value1
-      ENV_VAR_2: value2
-      # Add other environment variables here
+      VITE_WEATHER_MAP_APP_ID: ${{ secrets.VITE_WEATHER_MAP_APP_ID }}
+      VITE_WEATHER_MAP_URL: ${{ secrets.VITE_WEATHER_MAP_URL }}
+      VITE_MAX_CACHE_ITEMS: ${{ secrets.VITE_MAX_CACHE_ITEMS }}
+      VITE_TTL: ${{ secrets.VITE_TTL }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -41,12 +42,6 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Close Pull Request Job
-    env:
-      VITE_WEATHER_MAP_APP_ID: ${{ secrets.VITE_WEATHER_MAP_APP_ID }}
-      VITE_WEATHER_MAP_URL: ${{ secrets.VITE_WEATHER_MAP_URL }}
-      VITE_MAX_CACHE_ITEMS: ${{ secrets.VITE_MAX_CACHE_ITEMS }}
-      VITE_TTL: ${{ secrets.VITE_TTL }}
-      # Add other environment variables here
     steps:
       - name: Close Pull Request
         id: closepullrequest
