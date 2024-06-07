@@ -53,6 +53,18 @@ Make sure you have Node.js and npm installed on your system. You can download th
    npm install
    ```
 
+## Setting Up Environment Variables
+
+To set up environment variables for the application, you can follow these steps:
+
+1. Copy the contents of the `.env.example` file.
+
+2. Create a new file named `.env` in the root directory of the project.
+
+3. Paste the contents you copied from `.env.example` into the new `.env` file.
+
+4. Optionally, modify the values of the variables in the `.env` file according to your requirements.
+
 ## Available Scripts
 
 In the project directory, you can run:
